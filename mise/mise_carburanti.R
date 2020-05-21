@@ -3,13 +3,16 @@ library(readxl)
 library(tidyverse)
 library(lubridate)
 library(zoo)
-setwd("./data")
+library(purrr)
+setwd("nowcasting-prod-ind/mise/data")
 getwd()
-files <- dir()
-data <- vector(mode = "list", length = length(files))
 
-for (i in seq_along(files)){
-  data[[i]] <- read_excel(files[i], skip = 3, col_names = TRUE)
+paths <- dir(pattern = "\\.xl")
+
+data <- vector(mode = "list", length = length(paths))
+
+for (i in seq_along(paths)){
+  data[[i]] <- read_excel(paths[i], skip = 3, col_names = TRUE)
 }
 
 # Extract indexes of the rows containig "TOTALE"
@@ -27,7 +30,7 @@ indexes_tot
 # to reduce each tibble to have the rows with TOTALE
 for (i in seq_along(data)){
   # Append names to each list
-  names(data)[i] <- files[i]
+  names(data)[i] <- paths[i]
   # Extract the rows which have "TOTALE"
   data[[i]] <- data[[i]][indexes_tot[[i]],]
 }
@@ -42,7 +45,7 @@ non_def_indexes <- vector(mode = "numeric")
 
 for (i in seq_along(data)){
   
-  # Extract the years from the files' names
+  # Extract the years from the paths' names
   years[i] <- str_extract(names(data)[i], "\\d{4}")
   
   # FOCUS FIRST ON TIBBLES WITH NAME "Definitivi"
